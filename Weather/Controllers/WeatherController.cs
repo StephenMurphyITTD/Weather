@@ -52,6 +52,20 @@ namespace Weather.Controllers
             return Ok(cityWeather);                                                 // 200 OK, weather info serialized in response body
         }
 
+        // GET /weather/condition/rain
+        [Route("condition/{conditionName:alpha}")]                                            // {parameter:constraint}
+        public IHttpActionResult GetWeatherInformationForCondition(String conditionName)
+        {
+            // LINQ query, find matching city (case-insensitive) or default value (null) if none matching
+            WeatherInformation conditionWeather = weather.FirstOrDefault(w => w.Conditions.ToUpper() == conditionName.ToUpper());
+            if (conditionWeather == null)
+            {
+                return NotFound();                                                  // 404
+            }
+            return Ok(conditionWeather);                                                 // 200 OK, weather info serialized in response body
+        }
+
+
         [Route("cities/warning/{warning:bool}")]                                // {parameter:constraint}
         // GET api/weather/warning/true or false
         public IEnumerable<String> GetCityNameForWarningStatus(bool warning)
@@ -60,7 +74,6 @@ namespace Weather.Controllers
             var cities = weather.Where(w => w.WeatherWarning == warning).Select(w => w.City);
             return cities;                                                      // 200 OK, weather info serialized in response body
         }
-
         /* controller action return types:
             void                    - 204 (No Content)
             IHttpIHttpActionResult  - use helpers e.g Ok, NotFound etc.
